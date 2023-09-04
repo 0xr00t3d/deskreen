@@ -10,6 +10,7 @@ import {
   Dialog,
   Classes,
 } from '@blueprintjs/core';
+import * as os from 'os';
 import QRCode from 'qrcode.react';
 import { makeStyles, createStyles } from '@material-ui/core';
 import { Row, Col } from 'react-flexbox-grid';
@@ -69,9 +70,32 @@ const ScanQRStep: React.FC = () => {
     }, 1000);
 
     const ipInterval = setInterval(async () => {
-      const gotIP = await ipcRenderer.invoke('get-local-lan-ip');
-      if (gotIP) {
-        setLocalLanIP(gotIP);
+      const ifaces = os.networkInterfaces();
+      const ifaceSelect = document.createElement('select');
+      ifaceSelect.id = 'ifaceSelect';
+
+      Object.keys(ifaces).forEach((ifaceName) => {
+        const option = document.createElement('option');
+        option.value = ifaceName;
+        option.text = ifaceName;
+        ifaceSelect.appendChild(option);
+      });
+
+      const selectIface = document.getElementById('select-iface');
+
+      let gotIP;
+
+      if (selectIface) {
+        ifaceSelect.onchange = function () {
+          const selectedIface = ifaceSelect.value;
+          selectIface.removeChild(ifaceSelect);
+          gotIP = ifaces[selectedIface][0].address;
+          setLocalLanIP(gotIP);
+        };
+
+        if (!document.getElementById('ifaceSelect')) {
+          selectIface.appendChild(ifaceSelect);
+        }
       }
     }, 1000);
 
@@ -185,6 +209,10 @@ const ScanQRStep: React.FC = () => {
           </Col>
         </Row>
       </Dialog>
+      <label id="select-iface" htmlFor="ifaceSelect">
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+        Select network interface:
+      </label>
     </>
   );
 };

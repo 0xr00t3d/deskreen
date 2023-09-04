@@ -447,3 +447,13 @@ a:hover {
 .bp3-tab-list {
   height: calc(100vh - 30%);
 }
+
+#select-iface {
+  margin-top: 5px;
+}
+
+#iface_select {
+  width: 60px;
+  margin-top: 5px;
+  font-size: 16px;
+}
